@@ -23,6 +23,14 @@
         <span class="close" onclick="closeModal()">&times;</span>
         <img class="modal-content" id="modalImage">
     </div>
+    <h1>Selected SKUs</h1>
+    <div class="card-gallery" >
+        {% for card in cards %}
+            <p class="card">
+                {{ card }}
+            </p>
+        {% endfor %}
+    </div>
 </body>
 <script>
     function showModal(src) { 

@@ -19,9 +19,12 @@ dimensions = {
     'image_35_1.png': [4, 1, 1]
 }
 
-
+selected_cards = ''
 @app.route('/stands', methods=['GET', 'POST'])
-def home():
+def stands():
+    global selected_cards
+    selected_cards = request.form.getlist('selected_cards')
+    selected_cards = selected_cards[0].split(',')
     images = {
         'Jif': ['image_2_2.png', 'image_3_2.png', 'image_4_2.png'],
         'Omo': ['image_18_2.png', 'image_6_2.png', 'image_19_2.png'],
@@ -48,7 +51,7 @@ def display():
     selected_images = ''
     selected_images = request.form.getlist('selected_images')
     selected_images = selected_images[0].split(',')
-    return render_template('display.html', images=selected_images)
+    return render_template('display.html', images=selected_images, cards=selected_cards)
 
 @app.route('/', methods=['GET', 'POST'])
 def items():
