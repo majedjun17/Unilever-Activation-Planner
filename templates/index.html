@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}"> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/Theme.css') }}">
     <title>Home Page</title>
     <style>
         .selected {
@@ -11,6 +13,7 @@
         }
     </style>
 </head>
+
 <body>
     <h1>Choose Your Stand</h1>
     <form>
@@ -54,29 +57,31 @@
             const selection = document.getElementById('selection').value;
             if (selection) {
                 fetch('/get_images', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ selection })
-                })
-                .then(response => response.json())
-                .then(images => {
-                    const gallery = document.getElementById('imageGallery');
-                    gallery.innerHTML = '';
-                    images.forEach(image => {
-                        const imgElement = document.createElement('div');
-                        imgElement.classList.add('image-container');
-                        imgElement.innerHTML = `
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            selection
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(images => {
+                        const gallery = document.getElementById('imageGallery');
+                        gallery.innerHTML = '';
+                        images.forEach(image => {
+                            const imgElement = document.createElement('div');
+                            imgElement.classList.add('image-container');
+                            imgElement.innerHTML = `
                             <img src="{{ url_for('static', filename='images/') }}${image}" alt="Image" data-image="${image}" onclick="selectImage(this)">
                             <button type="button" class="view-button" onclick="showModal('{{ url_for('static', filename='images/') }}${image}')">🔍</button>
                         `;
-                        if (selectedImages.has(image)) {
-                            imgElement.querySelector('img').classList.add('selected');
-                        }
-                        gallery.appendChild(imgElement);
+                            if (selectedImages.has(image)) {
+                                imgElement.querySelector('img').classList.add('selected');
+                            }
+                            gallery.appendChild(imgElement);
+                        });
                     });
-                });
             }
         }
 
@@ -103,4 +108,5 @@
         }
     </script>
 </body>
+
 </html>

@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}"> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/Theme.css') }}">
     <title>Selected Images</title>
 </head>
 
@@ -12,11 +13,10 @@
     <h1>Selected Images</h1>
     <div class="image-gallery" hidden>
         {% for image in images %}
-            <div class="image-container">
+        <div class="image-container">
             <img src="{{ url_for('static', filename='images/' + image) }}" alt="Image">
-            <button type="button" class="view-button"
-                onclick="showModal('{{ url_for('static', filename='images/' + image) }}')">🔍</button>
-            </div>
+            <button type="button" class="view-button" onclick="showModal('{{ url_for('static', filename='images/' + image) }}')">🔍</button>
+        </div>
         {% endfor %}
     </div>
     <div id="myModal" class="modal">
@@ -24,16 +24,16 @@
         <img class="modal-content" id="modalImage">
     </div>
     <h1>Selected SKUs</h1>
-    <div class="card-gallery" >
+    <div class="card-gallery">
         {% for card in cards %}
-            <p class="card">
-                {{ card }}
-            </p>
+        <p class="card">
+            {{ card }}
+        </p>
         {% endfor %}
     </div>
 </body>
 <script>
-    function showModal(src) { 
+    function showModal(src) {
         const modal = document.getElementById("myModal");
         const modalImg = document.getElementById("modalImage");
         modal.style.display = "block";
@@ -45,7 +45,7 @@
         modal.style.display = "none";
     }
 
-    window.onclick = function (event) {
+    window.onclick = function(event) {
         const modal = document.getElementById("myModal");
         if (event.target == modal) {
             modal.style.display = "none";

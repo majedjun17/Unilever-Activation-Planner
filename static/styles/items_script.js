@@ -9,10 +9,12 @@ function hideCards() {
     container.style.display = 'none';
     button.style.display = 'block';
     document.getElementById('submit-button').style.display = 'block';
+    document.getElementById('cardForm').style.display = 'block';
+
 }
 
 function toggleCards() {
-    
+
     const container = document.getElementById('card-container');
     const button = document.getElementById('toggle-button');
     const subcardContainer = document.getElementById('subcard-container');
@@ -21,6 +23,7 @@ function toggleCards() {
         button.style.display = 'none';
         subcardContainer.style.display = 'none';
         document.getElementById('submit-button').style.display = 'none';
+        document.getElementById('cardForm').style.display = 'none';
     } else {
         container.style.display = 'none';
         button.style.display = 'block';
@@ -30,30 +33,30 @@ function toggleCards() {
 function fetchSubcards(item) {
     hideCards();
     fetch('/get_cards', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ selection: item })
-    })
-    .then(response => response.json())
-    .then(data => {
-        const subcardContainer = document.getElementById('subcard-container');
-        subcardContainer.style.display = 'flex';
-        subcardContainer.innerHTML = ''; // Clear previous subcards
-        data.forEach(subitem => {
-            const subcard = document.createElement('div');
-            subcard.className = 'subcard';
-            subcard.id = subitem.name;
-            subcard.innerText = subitem.name;
-            subcard.title = subitem.tooltip; // Set the tooltip
-            subcard.onclick = () => toggleSubcard(subitem.name);
-            subcardContainer.appendChild(subcard);
-            if (selectedSubcards.has(subitem.name)) {
-                subcard.classList.add('selected');
-            }
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ selection: item })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const subcardContainer = document.getElementById('subcard-container');
+            subcardContainer.style.display = 'flex';
+            subcardContainer.innerHTML = ''; // Clear previous subcards
+            data.forEach(subitem => {
+                const subcard = document.createElement('div');
+                subcard.className = 'subcard';
+                subcard.id = subitem.name;
+                subcard.innerText = subitem.name;
+                subcard.title = subitem.tooltip; // Set the tooltip
+                subcard.onclick = () => toggleSubcard(subitem.name);
+                subcardContainer.appendChild(subcard);
+                if (selectedSubcards.has(subitem.name)) {
+                    subcard.classList.add('selected');
+                }
+            });
         });
-    });
 }
 
 function toggleSubcard(subitem) {
