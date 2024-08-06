@@ -18,7 +18,7 @@ dimensions = {
     'image_25_2.png': [4, 2.4, 1.6],
     'image_35_1.png': [4, 1, 1]
 }
-
+selected_images = ''
 selected_cards = ''
 @app.route('/stands', methods=['GET', 'POST'])
 def stands():
@@ -48,7 +48,7 @@ def get_images():
 
 @app.route('/display', methods=['POST'])
 def display():
-    selected_images = ''
+    global selected_cards, selected_images
     selected_images = request.form.getlist('selected_images')
     selected_images = selected_images[0].split(',')
     return render_template('display.html', images=selected_images, cards=selected_cards)
@@ -82,9 +82,19 @@ def get_cards():
 
 @app.route('/calculate', methods=['POST'])
 def calculate():
-    selected_cards = ''
-    selected_cards = request.form.getlist('selected_cards')
-    selected_cards = selected_cards[0].split(',')
+    submitted_data = request.form.to_dict()
+    quantities = {key.replace('quantity_', ''): value for key, value in submitted_data.items() if key.startswith('quantity_')}
+    
+    
+    # Process the quantities and images here
+    # For example, print the quantities
+    print('============================================')
+    print(selected_images)
+    print('============================================')
+    for card, quantity in quantities.items():
+        print(f"Card: {card}, Quantity: {quantity}")
+    
+    return jsonify(submitted_data, selected_images)
     
     return render_template('calculate.html', cards=selected_cards)
 if __name__ == '__main__':
