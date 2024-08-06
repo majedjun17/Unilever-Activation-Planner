@@ -1,0 +1,151 @@
+[1mdiff --git a/main.py b/main.py[m
+[1mindex d45650f..9a9e641 100644[m
+[1m--- a/main.py[m
+[1m+++ b/main.py[m
+[36m@@ -1,8 +1,9 @@[m
+[31m-from flask import Flask, render_template, request, redirect, url_for, jsonify[m
+[32m+[m[32mfrom flask import Flask, render_template, request, redirect, url_for, jsonify, session[m
+ import pickle[m
+ import pandas as pd[m
+ [m
+ app = Flask(__name__)[m
+[32m+[m[32mapp.secret_key = 'your_secret_key'  # Set your secret key for session[m
+ [m
+ # Load data[m
+ DF = pd.read_excel("static/BPC Packszie Measurements - 2022 - FOR ROI.xlsx")[m
+[36m@@ -23,15 +24,12 @@[m [mDIMENSIONS = {[m
+ }[m
+ [m
+ IMAGES = {[m
+[31m-        'Jif': ['image_2_2.png', 'image_3_2.png', 'image_4_2.png'],[m
+[31m-        'Omo': ['image_18_2.png', 'image_6_2.png', 'image_19_2.png'],[m
+[31m-        'Knorr': ['image_5_2.png', 'image_7_2.png', 'image_8_2.png'],[m
+[31m-        'Comfort': ['image_6_2.png', 'image_25_2.png'],[m
+[31m-        'Axe': ['image_35_1.png'][m
+[31m-    }[m
+[31m-[m
+[31m-SELECTED_IMAGES = ''[m
+[31m-SELECTED_CARDS = ''[m
+[32m+[m[32m    'Jif': ['image_2_2.png', 'image_3_2.png', 'image_4_2.png'],[m
+[32m+[m[32m    'Omo': ['image_18_2.png', 'image_6_2.png', 'image_19_2.png'],[m
+[32m+[m[32m    'Knorr': ['image_5_2.png', 'image_7_2.png', 'image_8_2.png'],[m
+[32m+[m[32m    'Comfort': ['image_6_2.png', 'image_25_2.png'],[m
+[32m+[m[32m    'Axe': ['image_35_1.png'][m
+[32m+[m[32m}[m
+ [m
+ def calculate_blocks(length, width, blocks):[m
+     area_rect = length * width[m
+[36m@@ -73,22 +71,22 @@[m [mdef calculate_blocks(length, width, blocks):[m
+ [m
+ @app.route('/stands', methods=['GET', 'POST'])[m
+ def stands():[m
+[31m-    global SELECTED_CARDS, SELECTED_IMAGES, IMAGES[m
+[31m-    SELECTED_CARDS = request.form.getlist('selected_cards')[0].split(',')[m
+[31m-    [m
+[32m+[m[32m    if request.method == 'POST':[m
+[32m+[m[32m        session['selected_cards'] = request.form.getlist('selected_cards')[0].split(',')[m
+[32m+[m[32m        return redirect(url_for('stands'))[m
+     return render_template('index.html', images=IMAGES)[m
+ [m
+ @app.route('/get_images', methods=['POST'])[m
+ def get_images():[m
+[31m-    global IMAGES[m
+     selected_value = request.json.get('selection')[m
+     return jsonify(IMAGES.get(selected_value, []))[m
+ [m
+[31m-@app.route('/display', methods=['POST'])[m
+[32m+[m[32m@app.route('/display', methods=['GET', 'POST'])[m
+ def display():[m
+[31m-    global SELECTED_CARDS, SELECTED_IMAGES[m
+[31m-    SELECTED_IMAGES = request.form.getlist('selected_images')[0].split(',')[m
+[31m-    return render_template('display.html', images=SELECTED_IMAGES, cards=SELECTED_CARDS)[m
+[32m+[m[32m    if request.method == 'POST':[m
+[32m+[m[32m        session['selected_images'] = request.form.getlist('selected_images')[0].split(',')[m
+[32m+[m[32m        return redirect(url_for('display'))[m
+[32m+[m[32m    return render_template('display.html', images=session.get('selected_images', []), cards=session.get('selected_cards', []))[m
+ [m
+ @app.route('/', methods=['GET', 'POST'])[m
+ def items():[m
+[36m@@ -98,7 +96,6 @@[m [mdef items():[m
+ [m
+ @app.route('/get_cards', methods=['POST'])[m
+ def get_cards():[m
+[31m-    global DF[m
+     selected_value = request.json.get('selection')[m
+     if selected_value == "CARTE DOR COMPLETE DESSERTS":[m
+         selected_value = "CARTE D\'OR COMPLETE DESSERTS"[m
+[36m@@ -112,12 +109,11 @@[m [mdef get_cards():[m
+ [m
+ @app.route('/calculate', methods=['POST'])[m
+ def calculate():[m
+[31m-    global SELECTED_CARDS, SELECTED_IMAGES[m
+     submitted_data = request.form.to_dict()[m
+     quantities = {key.replace('quantity_', ''): value for key, value in submitted_data.items() if key.startswith('quantity_')}[m
+     [m
+     all_results = [][m
+[31m-    for image in SELECTED_IMAGES:[m
+[32m+[m[32m    for image in session.get('selected_images', []):[m
+         length = DIMENSIONS[image][1] * 100[m
+         width = DIMENSIONS[image][2] * 100[m
+         blocks = [[m
+[36m@@ -129,6 +125,7 @@[m [mdef calculate():[m
+         all_results.append(results)[m
+     [m
+     return jsonify(all_results)[m
+[32m+[m[32m    return render_template('calculate.html', all=all)[m
+ [m
+ if __name__ == '__main__':[m
+     app.run(debug=True)[m
+[1mdiff --git a/templates/display.html b/templates/display.html[m
+[1mindex 82d049f..c27e42a 100644[m
+[1m--- a/templates/display.html[m
+[1m+++ b/templates/display.html[m
+[36m@@ -58,4 +58,4 @@[m
+     }[m
+ </script>[m
+ [m
+[31m-</html>[m
+[32m+[m[32m</html>[m
+\ No newline at end of file[m
+[1mdiff --git a/templates/index.html b/templates/index.html[m
+[1mindex c6f57b1..917d80b 100644[m
+[1m--- a/templates/index.html[m
+[1m+++ b/templates/index.html[m
+[36m@@ -57,14 +57,14 @@[m
+             const selection = document.getElementById('selection').value;[m
+             if (selection) {[m
+                 fetch('/get_images', {[m
+[31m-                        method: 'POST',[m
+[31m-                        headers: {[m
+[31m-                            'Content-Type': 'application/json'[m
+[31m-                        },[m
+[31m-                        body: JSON.stringify({[m
+[31m-                            selection[m
+[31m-                        })[m
+[32m+[m[32m                    method: 'POST',[m
+[32m+[m[32m                    headers: {[m
+[32m+[m[32m                        'Content-Type': 'application/json'[m
+[32m+[m[32m                    },[m
+[32m+[m[32m                    body: JSON.stringify({[m
+[32m+[m[32m                        selection[m
+                     })[m
+[32m+[m[32m                })[m
+                     .then(response => response.json())[m
+                     .then(images => {[m
+                         const gallery = document.getElementById('imageGallery');[m
+[36m@@ -97,13 +97,13 @@[m
+             modal.style.display = "none";[m
+         }[m
+ [m
+[31m-        window.onclick = function(event) {[m
+[32m+[m[32m        window.onclick = function (event) {[m
+             const modal = document.getElementById("myModal");[m
+             if (event.target == modal) {[m
+                 modal.style.display = "none";[m
+             }[m
+         }[m
+[31m-        window.onload = function() {[m
+[32m+[m[32m        window.onload = function () {[m
+             fetchImages();[m
+         }[m
+     </script>[m
