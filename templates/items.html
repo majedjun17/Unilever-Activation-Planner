@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Grid</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/items_styles.css') }}">
+</head>
+<body>
+    <button id="toggle-button" onclick="toggleCards()">Show Cards</button>
+    
+    <div class="container" id="card-container">
+        {% for item in items %}
+            <div class="card" onclick="fetchSubcards('{{ item|escape  }}')">
+                {{ item }}
+            </div>
+        {% endfor %}
+    </div>
+    <div class="container" id="subcard-container" style="display: none;">
+        <!-- Subcards will be generated here -->
+    </div>
+
+    <form id="cardForm" method="POST" action="{{ url_for('calculate') }}">
+        <input type="hidden" name="selected_cards" id="selectedCards">
+        <button id="submit-button" onclick="submitSelected()" style="display: none;" hidden>Submit</button>
+    </form>
+    <script src="{{ url_for('static', filename='styles/items_script.js') }}"></script>
+</body>
+</html>

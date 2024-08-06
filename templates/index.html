@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+    <title>Home Page</title>
+    <style>
+        .selected {
+            filter: grayscale(100%);
+        }
+    </style>
+</head>
+<body>
+    <h1>Choose Your Stand</h1>
+    <form>
+        <label for="selection">Choose an option:</label>
+        <select name="selection" id="selection" onchange="fetchImages()">
+            <option value="Jif" selected>Jif</option>
+            <option value="Omo">Omo</option>
+            <option value="Knorr">Knorr</option>
+            <option value="Comfort">Comfort</option>
+            <option value="Axe">Axe</option>
+        </select>
+    </form>
+
+    <form id="imageForm" method="POST" action="{{ url_for('display') }}">
+        <div class="image-gallery" id="imageGallery">
+            <!-- Images will be loaded here -->
+        </div>
+        <input type="hidden" name="selected_images" id="selectedImages">
+        <button type="submit" id="submit-image">Submit Selected Images</button>
+    </form>
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+    <script>
+        let selectedImages = new Set();
+
+        function selectImage(img) {
+            const imageName = img.getAttribute('data-image');
+            if (selectedImages.has(imageName)) {
+                selectedImages.delete(imageName);
+                img.classList.remove('selected');
+            } else {
+                selectedImages.add(imageName);
+                img.classList.add('selected');
+            }
+            document.getElementById('selectedImages').value = Array.from(selectedImages).join(',');
+        }
+
+        function fetchImages() {
+            const selection = document.getElementById('selection').value;
+            if (selection) {
+                fetch('/get_images', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ selection })
+                })
+                .then(response => response.json())
+                .then(images => {
+                    const gallery = document.getElementById('imageGallery');
+                    gallery.innerHTML = '';
+                    images.forEach(image => {
+                        const imgElement = document.createElement('div');
+                        imgElement.classList.add('image-container');
+                        imgElement.innerHTML = `
+                            <img src="{{ url_for('static', filename='images/') }}${image}" alt="Image" data-image="${image}" onclick="selectImage(this)">
+                            <button type="button" class="view-button" onclick="showModal('{{ url_for('static', filename='images/') }}${image}')">🔍</button>
+                        `;
+                        if (selectedImages.has(image)) {
+                            imgElement.querySelector('img').classList.add('selected');
+                        }
+                        gallery.appendChild(imgElement);
+                    });
+                });
+            }
+        }
+
+        function showModal(src) {
+            const modal = document.getElementById("myModal");
+            const modalImg = document.getElementById("modalImage");
+            modal.style.display = "block";
+            modalImg.src = src;
+        }
+
+        function closeModal() {
+            const modal = document.getElementById("myModal");
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById("myModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+        window.onload = function() {
+            fetchImages();
+        }
+    </script>
+</body>
+</html>
